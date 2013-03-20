@@ -239,6 +239,18 @@
 			Name="ZUI"
 			>
 			<File
+				RelativePath=".\stb_image.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\ZAppModule.cpp"
 				>
 				<FileConfiguration
@@ -252,6 +264,22 @@
 			</File>
 			<File
 				RelativePath=".\ZAppModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ZButton.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ZButton.h"
 				>
 			</File>
 			<File
@@ -352,6 +380,22 @@
 			</File>
 			<File
 				RelativePath=".\ZUIMgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ZUIRender.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ZUIRender.h"
 				>
 			</File>
 			<File

@@ -9,6 +9,7 @@
 #include "ZGlobal.h"
 #include "ZWindow.h"
 #include "ZStatic.h"
+#include "ZButton.h"
 
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
@@ -18,9 +19,13 @@ class CMyWindow : public CZWindow
 public:
 	CMyWindow()
 	{
-		CZStatic* pStatic = new CZStatic();
-		pStatic->SetText(_T("Hello ZUI!"));
-		m_pRootCtrl = pStatic;
+		//CZStatic* pStatic = new CZStatic();
+		//pStatic->SetText(_T("Hello ZUI!"));
+		CZButton* pButton = new CZButton();
+		pButton->SetText(_T("Hello ZUI!"));
+		pButton->SetStateImage(BS_NORMAL, _T("button_normal.bmp"));
+		pButton->SetStateImage(BS_HOVER, _T("button_hover.bmp"));
+		m_pRootCtrl = pButton;
 	}
 
 	~CMyWindow()
@@ -37,6 +42,8 @@ public:
 			hWnd = CreateZWindow(dwStyle, dwExStyle, rc);
 			RECT rc = {0};
 			::GetClientRect(m_hWnd, &rc);
+			rc.right = 75;
+			rc.bottom = 24;
 			m_pRootCtrl->SetSize(rc);
 		}
 		return hWnd;
@@ -65,6 +72,10 @@ protected:
 		switch(uMsg)
 		{
 		case WM_PAINT:
+			bHandled = FALSE;
+			return 0;
+			break;
+		case WM_MOUSEMOVE:
 			bHandled = FALSE;
 			return 0;
 			break;

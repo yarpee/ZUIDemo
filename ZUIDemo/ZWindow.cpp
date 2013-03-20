@@ -1,6 +1,7 @@
 #include "ZWindow.h"
 #include "ZGlobal.h"
 #include "ZUIMgr.h"
+#include "ZControl.h"
 #include <tchar.h>
 #include <atldef.h>	// for ATLASSERT
 
@@ -27,10 +28,15 @@ VOID CZWindow::AttachZUIMgr(CZUIMgr* pMgr)
 {
 	ATLASSERT(pMgr != NULL);
 	m_pZUIMgr = pMgr;
+	if(m_pRootCtrl != NULL)
+	{
+		m_pRootCtrl->AttachZUIMgr(pMgr);
+	}
 }
 
 CZUIMgr* CZWindow::DetachZUIMgr()
 {
+	m_pRootCtrl->DetachZUIMgr();
 	CZUIMgr* pMgr = m_pZUIMgr;
 	m_pZUIMgr = NULL;
 	return pMgr;

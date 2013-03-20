@@ -93,10 +93,31 @@ VOID CZControl::OnPaint(HDC hDC, RECT& rc)
 	if(::IntersectRect(&rcPaint, &rc, &m_rcSize))
 	{
 		// TODO: ªÊ÷∆À≥–Ú
+		OnPaintStateImage(hDC);
 		OnPaintText(hDC);
 	}
 }
 
+VOID CZControl::OnPaintStateImage(HDC hDC)
+{
+}
+
 VOID CZControl::OnPaintText(HDC hDC)
 {
+}
+
+CZControl* CZControl::FindControl(POINT& pt)
+{
+	if(::PtInRect(&m_rcSize, pt))
+	{
+		return this;
+	}
+	for(int i = 0; i < m_aChild.GetSize(); ++i)
+	{
+		if(m_aChild[i])
+		{
+			return m_aChild[i]->FindControl(pt);
+		}
+	}
+	return NULL;
 }

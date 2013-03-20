@@ -1,4 +1,5 @@
 #include "ZStatic.h"
+#include "ZUIRender.h"
 
 #define STATIC_CLASS_NAME _T("ZUI Static Class")
 
@@ -24,7 +25,7 @@ BOOL CZStatic::HandleEvent(EVENT& e)
 
 VOID CZStatic::OnPaintText(HDC hDC)
 {
-	::DrawText(hDC, m_strText, -1, m_rcSize, m_dwStyle);
+	CZUIRender::DrawText(hDC, m_strText, m_dwColor, m_dwStyle, m_rcSize);
 }
 
 VOID CZStatic::SetText(LPCTSTR lpszText)

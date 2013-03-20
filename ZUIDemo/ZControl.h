@@ -58,7 +58,10 @@ public:
 	// »æÖÆ
 	VOID Invalidate();
 	virtual VOID OnPaint(HDC hDC, RECT& rc);
+	virtual VOID OnPaintStateImage(HDC hDC);
 	virtual VOID OnPaintText(HDC hDC);
+
+	CZControl* FindControl(POINT& pt);
 
 protected:
 	CZUIMgr*						m_pZUIMgr;	// ZUI Mgr

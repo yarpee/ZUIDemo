@@ -21,6 +21,7 @@ public:
 	CZWindow* Detach();
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	BOOL OnPaint();
+	BOOL OnMouseMove(POINT& pt);
 
 	// »æÍ¼
 	VOID InvalidateRect(RECT& rc, BOOL bEraseBG = FALSE);

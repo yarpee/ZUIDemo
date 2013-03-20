@@ -3,6 +3,7 @@
 #include "ZWindow.h"
 #include "ZControl.h"
 #include <atldef.h>
+#include <WindowsX.h>
 
 CZUIMgr::CZUIMgr(void)
 : m_pWindow(NULL)
@@ -82,6 +83,13 @@ LRESULT CZUIMgr::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 			bHandled = OnPaint();
 		}
 		break;
+	case WM_MOUSEMOVE:
+		{
+			POINT pt = {0};
+			pt.x = GET_X_LPARAM(lParam);
+			pt.y = GET_Y_LPARAM(lParam);
+			bHandled = OnMouseMove(pt);
+		}
 	default:
 		{
 
@@ -179,6 +187,21 @@ BOOL CZUIMgr::OnPaint()
 		}
 	}
 	return bHandled;
+}
+
+BOOL CZUIMgr::OnMouseMove(POINT& pt)
+{
+	CZControl* pRootCtrl = m_pWindow->GetRootControl();
+	CZControl* pHoverCtrl = pRootCtrl->FindControl(pt);
+	if(pHoverCtrl != NULL)
+	{
+		EVENT e = {0};
+		e.dwEventID = WM_MOUSEMOVE;
+		e.dwTimestamp = ::GetTickCount();
+		e.ptMouse = pt;
+		pHoverCtrl->HandleEvent(e);
+	}
+	return TRUE;
 }
 
 VOID CZUIMgr::InvalidateRect(RECT& rc, BOOL bEraseBG /* = FALSE */)
