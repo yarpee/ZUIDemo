@@ -10,6 +10,7 @@
 #include <Windows.h>
 
 class CZWindow;
+class CZControl;
 
 class CZUIMgr
 {
@@ -22,12 +23,17 @@ public:
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	BOOL OnPaint();
 	BOOL OnMouseMove(POINT& pt);
+	BOOL OnLButtonDown(POINT& pt);
+	BOOL OnLButtonUp(POINT& pt);
 
 	// »æÍ¼
 	VOID InvalidateRect(RECT& rc, BOOL bEraseBG = FALSE);
 
 private:
 	CZWindow*	m_pWindow;			// Real Window
+	CZControl*	m_pHoverCtrl;		// Hover Control
+	CZControl*	m_pClickCtrl;		// Click Control
+
 	HDC			m_hPaintDC;			// Window DC
 	HDC			m_hOffscreenDC;		// Offscreen DC
 	HBITMAP		m_hOffscreenBmp;	// Offscreen Bmp

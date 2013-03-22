@@ -11,15 +11,7 @@
 #include <atlstr.h>		// for CAtlString, #include <atlbase.h>
 #include <atltypes.h>	// for CRect
 //#include <atlbase.h>	// for ATL::CSimpleArray
-
-typedef struct _EVENT
-{
-	DWORD	dwEventID;
-	WPARAM	wParam;
-	LPARAM	lParam;
-	DWORD	dwTimestamp;
-	POINT	ptMouse;
-} EVENT, *PEVENT;
+#include "ZDef.h"
 
 class CZUIMgr;
 

@@ -20,13 +20,24 @@ LPCTSTR CZButton::GetClassName()
 
 BOOL CZButton::HandleEvent(EVENT& e)
 {
-	BOOL bHandled = FALSE;
+	BOOL bHandled = TRUE;
 	switch(e.dwEventID)
 	{
-	case WM_MOUSEMOVE:
+	case E_MOUSEMOVE:
 		m_dwState = BS_HOVER;
 		Invalidate();
-		bHandled = TRUE;
+		break;
+	case E_MOUSELEAVE:
+	case E_LBUTTONUP:
+		m_dwState = BS_NORMAL;
+		Invalidate();
+		break;
+	case E_LBUTTONDOWN:
+		m_dwState = BS_PUSH;
+		Invalidate();
+		break;
+	default:
+		bHandled = FALSE;
 		break;
 	}
 	return bHandled;

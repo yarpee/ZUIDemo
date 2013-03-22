@@ -1,4 +1,5 @@
 #include "ZUIMgr.h"
+#include "ZDef.h"
 #include "ZGlobal.h"
 #include "ZWindow.h"
 #include "ZControl.h"
@@ -7,6 +8,8 @@
 
 CZUIMgr::CZUIMgr(void)
 : m_pWindow(NULL)
+, m_pHoverCtrl(NULL)
+, m_pClickCtrl(NULL)
 , m_hPaintDC(NULL)
 , m_hOffscreenDC(NULL)
 , m_hOffscreenBmp(NULL)
@@ -17,6 +20,7 @@ CZUIMgr::CZUIMgr(void)
 
 CZUIMgr::~CZUIMgr(void)
 {
+	Detach();
 }
 
 VOID CZUIMgr::Attach(CZWindow* pWindow)
@@ -90,6 +94,23 @@ LRESULT CZUIMgr::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 			pt.y = GET_Y_LPARAM(lParam);
 			bHandled = OnMouseMove(pt);
 		}
+		break;
+	case WM_LBUTTONDOWN:
+		{
+			POINT pt = {0};
+			pt.x = GET_X_LPARAM(lParam);
+			pt.y = GET_Y_LPARAM(lParam);
+			bHandled = OnLButtonDown(pt);
+		}
+		break;
+	case WM_LBUTTONUP:
+		{
+			POINT pt = {0};
+			pt.x = GET_X_LPARAM(lParam);
+			pt.y = GET_Y_LPARAM(lParam);
+			bHandled = OnLButtonUp(pt);
+		}
+		break;
 	default:
 		{
 
@@ -191,17 +212,104 @@ BOOL CZUIMgr::OnPaint()
 
 BOOL CZUIMgr::OnMouseMove(POINT& pt)
 {
-	CZControl* pRootCtrl = m_pWindow->GetRootControl();
-	CZControl* pHoverCtrl = pRootCtrl->FindControl(pt);
-	if(pHoverCtrl != NULL)
+	BOOL bRet = FALSE;
+	do 
 	{
-		EVENT e = {0};
-		e.dwEventID = WM_MOUSEMOVE;
-		e.dwTimestamp = ::GetTickCount();
-		e.ptMouse = pt;
-		pHoverCtrl->HandleEvent(e);
-	}
-	return TRUE;
+		CZControl* pRootCtrl = m_pWindow->GetRootControl();
+		if(NULL == pRootCtrl)
+		{
+			break;
+		}
+
+		CZControl* pHoverCtrl = pRootCtrl->FindControl(pt);
+		if(NULL == pHoverCtrl)
+		{
+			if(m_pHoverCtrl != NULL)
+			{
+				EVENT e = {0};
+				e.dwEventID = E_MOUSELEAVE;
+				e.dwTimestamp = ::GetTickCount();
+				e.ptMouse = pt;
+				m_pHoverCtrl->HandleEvent(e);
+				m_pHoverCtrl = NULL;
+			}
+		}
+		else
+		{
+			if(m_pHoverCtrl != pHoverCtrl)
+			{
+				if(m_pHoverCtrl != NULL)
+				{
+					EVENT e = {0};
+					e.dwEventID = E_MOUSELEAVE;
+					e.dwTimestamp = ::GetTickCount();
+					e.ptMouse = pt;
+					m_pHoverCtrl->HandleEvent(e);
+				}
+				m_pHoverCtrl = pHoverCtrl;
+				EVENT e = {0};
+				e.dwEventID = E_MOUSEMOVE;
+				e.dwTimestamp = ::GetTickCount();
+				e.ptMouse = pt;
+				m_pHoverCtrl->HandleEvent(e);
+			}
+		}
+		bRet = TRUE;
+	} while (0);
+	return bRet;
+}
+
+BOOL CZUIMgr::OnLButtonDown(POINT& pt)
+{
+	BOOL bRet = FALSE;
+	do 
+	{
+		CZControl* pRootCtrl = m_pWindow->GetRootControl();
+		if(NULL == pRootCtrl)
+		{
+			break;
+		}
+
+		CZControl* pCtrl = pRootCtrl->FindControl(pt);
+		if(pCtrl != NULL)
+		{
+			::SetCapture(*m_pWindow);
+			m_pClickCtrl = pCtrl;
+			EVENT e = {0};
+			e.dwEventID = E_LBUTTONDOWN;
+			e.dwTimestamp = ::GetTickCount();
+			e.ptMouse = pt;
+			m_pClickCtrl->HandleEvent(e);
+		}
+		bRet = TRUE;
+	} while (0);
+	return bRet;
+}
+
+BOOL CZUIMgr::OnLButtonUp(POINT& pt)
+{
+	BOOL bRet = FALSE;
+	do 
+	{
+		CZControl* pRootCtrl = m_pWindow->GetRootControl();
+		if(NULL == pRootCtrl)
+		{
+			break;
+		}
+
+		if(m_pClickCtrl != NULL)
+		{
+			::ReleaseCapture();
+			EVENT e = {0};
+			e.dwEventID = E_LBUTTONUP;
+			e.dwTimestamp = ::GetTickCount();
+			e.ptMouse = pt;
+			m_pClickCtrl->HandleEvent(e);
+			m_pClickCtrl = NULL;
+		}
+		bRet = TRUE;
+	} while (0);
+	return bRet;
 }
 
 VOID CZUIMgr::InvalidateRect(RECT& rc, BOOL bEraseBG /* = FALSE */)

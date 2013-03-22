@@ -25,6 +25,7 @@ public:
 		pButton->SetText(_T("Hello ZUI!"));
 		pButton->SetStateImage(BS_NORMAL, _T("button_normal.bmp"));
 		pButton->SetStateImage(BS_HOVER, _T("button_hover.bmp"));
+		pButton->SetStateImage(BS_PUSH, _T("button_push.bmp"));
 		m_pRootCtrl = pButton;
 	}
 
@@ -72,10 +73,9 @@ protected:
 		switch(uMsg)
 		{
 		case WM_PAINT:
-			bHandled = FALSE;
-			return 0;
-			break;
 		case WM_MOUSEMOVE:
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONUP:
 			bHandled = FALSE;
 			return 0;
 			break;
