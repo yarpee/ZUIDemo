@@ -1,14 +1,12 @@
 #include "ZUIMgr.h"
-#include "ZDef.h"
-#include "ZGlobal.h"
 #include "ZWindow.h"
 #include "ZControl.h"
-#include <atldef.h>
 #include <WindowsX.h>
 
 CZUIMgr::CZUIMgr(void)
 : m_pWindow(NULL)
 , m_pHoverCtrl(NULL)
+, m_pFocusCtrl(NULL)
 , m_pClickCtrl(NULL)
 , m_hPaintDC(NULL)
 , m_hOffscreenDC(NULL)
@@ -73,6 +71,45 @@ CZWindow* CZUIMgr::Detach()
 	m_pWindow = NULL;
 	return pWindow;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// Notify start
+VOID CZUIMgr::AddNotifier(INotify* pNotifier)
+{
+	ATLASSERT(pNotifier != NULL);
+	if(pNotifier != NULL)
+	{
+		CZCritSecLock Lock(m_cs);
+		m_aNotifier.Add(pNotifier);
+	}
+}
+
+BOOL CZUIMgr::RemoveNotifier(INotify* pNotifier)
+{
+	BOOL bRet = FALSE;
+	ATLASSERT(pNotifier != NULL);
+	if(pNotifier != NULL)
+	{
+		CZCritSecLock Lock(m_cs);
+		bRet = m_aNotifier.Remove(pNotifier);
+	}
+	return bRet;
+}
+
+VOID CZUIMgr::Notify(const NOTIFY& notify)
+{
+	CZCritSecLock Lock(m_cs);
+	for(int i = 0; i < m_aNotifier.GetSize(); ++i)
+	{
+		ATLASSERT(m_aNotifier[i] != NULL);
+		if(m_aNotifier[i] != NULL)
+		{
+			m_aNotifier[i]->Notify(notify);
+		}
+	}
+}
+// Notify end
+//////////////////////////////////////////////////////////////////////////
 
 LRESULT CZUIMgr::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
@@ -274,6 +311,7 @@ BOOL CZUIMgr::OnLButtonDown(POINT& pt)
 		if(pCtrl != NULL)
 		{
 			::SetCapture(*m_pWindow);
+			SetFocus(pCtrl);
 			m_pClickCtrl = pCtrl;
 			EVENT e = {0};
 			e.dwEventID = E_LBUTTONDOWN;
@@ -316,4 +354,35 @@ VOID CZUIMgr::InvalidateRect(RECT& rc, BOOL bEraseBG /* = FALSE */)
 {
 	ATLASSERT(m_pWindow != NULL && ::IsWindow(*m_pWindow));
 	::InvalidateRect(*m_pWindow, &rc, bEraseBG);
+}
+
+VOID CZUIMgr::SetFocus(CZControl* pCtrl)
+{
+	if(pCtrl != m_pFocusCtrl)
+	{
+		HWND hWnd = ::GetFocus();
+		if(hWnd != *m_pWindow)
+		{
+			::SetFocus(*m_pWindow);
+		}
+
+		// KillFocus
+		if(m_pFocusCtrl != NULL)
+		{
+			EVENT e = {0};
+			e.dwEventID = E_KILLFOCUS;
+			e.dwTimestamp = ::GetTickCount();
+			m_pFocusCtrl->HandleEvent(e);
+		}
+
+		// SetFocus
+		m_pFocusCtrl = pCtrl;
+		if(m_pFocusCtrl != NULL)
+		{
+			EVENT e = {0};
+			e.dwEventID = E_SETFOCUS;
+			e.dwTimestamp = ::GetTickCount();
+			m_pFocusCtrl->HandleEvent(e);
+		}
+	}
 }

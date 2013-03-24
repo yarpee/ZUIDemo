@@ -1,5 +1,5 @@
 #include "ZUIRender.h"
-#include "ZGlobal.h"
+#include "ZDef.h"
 
 extern "C"
 {
@@ -114,12 +114,33 @@ VOID CZUIRender::DrawText(HDC hDC, LPCTSTR lpszText, DWORD dwColor, DWORD dwStyl
 	{
 		// TODO: 字体
 		::SetBkMode(hDC, TRANSPARENT);
-		::SetTextColor(hDC, RGB(GetRValue(dwColor), GetGValue(dwColor), GetBValue(dwColor)));
+		::SetTextColor(hDC, RGB(GetBValue(dwColor), GetGValue(dwColor), GetRValue(dwColor)));
 		::DrawText(hDC, lpszText, -1, &rc, dwStyle);
 	}
 }
 
-VOID CZUIRender::DrawImage(HDC hDC, LPCTSTR lpszPath, RECT& rc)
+VOID CZUIRender::DrawRect(HDC hDC, RECT& rc, DWORD dwBorderSize, DWORD dwBorderColor, SIZE* pxyBorderRound /* = NULL */)
+{
+	HPEN hPen = ::CreatePen(PS_SOLID | PS_INSIDEFRAME, dwBorderSize, RGB(GetBValue(dwBorderColor), GetGValue(dwBorderColor), GetRValue(dwBorderColor)));
+	if(hPen != NULL)
+	{
+		HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
+		::SelectObject(hDC, ::GetStockObject(NULL_BRUSH));	// 画刷选用空画刷, 即不实心
+		if(pxyBorderRound != NULL)
+		{
+			// 圆角矩形
+			::RoundRect(hDC, rc.left, rc.top, rc.right, rc.bottom, pxyBorderRound->cx, pxyBorderRound->cy);
+		}
+		else
+		{
+			::Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
+		}
+		::SelectObject(hDC, hOldPen);
+		::DeleteObject(hPen);
+	}
+}
+
+VOID CZUIRender::DrawImage(HDC hDC, LPCTSTR lpszPath, RECT& rcSize, RECT& rcPaint)
 {
 	HBITMAP hBmp = NULL;
 	HDC hMemDC = NULL;
@@ -143,7 +164,23 @@ VOID CZUIRender::DrawImage(HDC hDC, LPCTSTR lpszPath, RECT& rc)
 		}
 
 		HBITMAP hOldBmp = (HBITMAP)::SelectObject(hMemDC, hBmp);
-		::BitBlt(hDC, rc.left, rc.top, GetRectWidth(rc), GetRectHeight(rc), hMemDC, rc.left, rc.top, SRCCOPY);
+
+		// 
+		RECT rc = {0};
+		if((rcSize.left <= rcPaint.left) || (rcSize.top <= rcPaint.top))
+		{
+			rc.left = rcPaint.left;
+			rc.top = rcPaint.top;
+		}
+		else
+		{
+			rc.left = rcSize.left;
+			rc.top = rcSize.top;
+		}
+		rc.right = min(rcSize.right, rcPaint.right);
+		rc.bottom = min(rcSize.bottom, rcPaint.bottom);
+
+		::BitBlt(hDC, rc.left, rc.top, GetRectWidth(rc), GetRectHeight(rc), hMemDC, 0, 0, SRCCOPY);
 		::SelectObject(hMemDC, hOldBmp);
 	} while (0);
 	if(hMemDC != NULL)

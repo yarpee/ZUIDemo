@@ -33,10 +33,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 #ifdef ZUI_DEBUG
 	InitAppModule(hInstance);
 	RECT rc = {CW_USEDEFAULT, 0, CW_USEDEFAULT * 2, 0};	// TODO: 整型溢出
-	HWND hWnd = g_MyWindow.Create(WS_OVERLAPPEDWINDOW, 0, rc);
+	g_MyWindow.Create(WS_OVERLAPPEDWINDOW, 0, rc);
 	InitZUIMessageLoop(&g_MyWindow);
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
+	g_MyWindow.AddCtrl();
+	g_MyWindow.ShowWindow();
 	return MessageLoop();
 #else
 	// TODO: 在此放置代码。
